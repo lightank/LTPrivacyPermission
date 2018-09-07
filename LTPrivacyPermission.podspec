@@ -25,6 +25,7 @@ Pod::Spec.new do |s|
   #   * Write the description between the DESC delimiters below.
   #   * Finally, don't worry about the indent, CocoaPods strips it!
   s.description  = <<-DESC
+  LTPrivacyPermission is a library for accessing various system privacy permissions, you can use it for more friendly access.
                    DESC
 
   s.homepage     = "https://github.com/lightank/LTPrivacyPermission"

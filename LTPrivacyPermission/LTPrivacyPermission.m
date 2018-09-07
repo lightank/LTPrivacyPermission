@@ -232,20 +232,9 @@
                 UNAuthorizationOptions types = UNAuthorizationOptionBadge | UNAuthorizationOptionAlert |UNAuthorizationOptionSound;
                 [center requestAuthorizationWithOptions:types completionHandler:^(BOOL granted, NSError * _Nullable error) {
                     //Queue: com.apple.usernotifications.UNUserNotificationServiceConnection.call-out (serial) 非主队列回调
-                    if (granted)
-                    {
-                        [center getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
-                            dispatch_async(dispatch_get_main_queue(), ^{
-                                completion(YES, LTPrivacyPermissionAuthorizationStatusAuthorized);
-                            });
-                        }];
-                    }
-                    else
-                    {
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            completion(NO, LTPrivacyPermissionAuthorizationStatusDenied);
-                        });
-                    }
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        completion(granted, granted ? LTPrivacyPermissionAuthorizationStatusAuthorized : LTPrivacyPermissionAuthorizationStatusDenied);
+                    });
                 }];
             }
             else
