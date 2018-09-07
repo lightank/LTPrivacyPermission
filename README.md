@@ -30,7 +30,14 @@ LTPrivacyPermission is a library for accessing various system privacy permission
     - Privacy - Contacts Usage Description
 - Reminder
     - Privacy - Reminders Usage Description 
+- Network (for China)
 
+## Preview
+
+ mainpage CN  | mainpage USA
+  -----|-----
+ ![Asset/permission_zh](Asset/permission_zh) |  ![Asset/permission_en](Asset/permission_en.png) 
+ ---  
 
 ## Installation with cocoapods
 
@@ -57,6 +64,9 @@ example:
     }
 }];
 ```
+
+## Reference link
+
 
 ## License
 
