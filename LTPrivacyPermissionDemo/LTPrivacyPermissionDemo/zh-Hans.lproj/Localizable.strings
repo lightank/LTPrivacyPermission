@@ -1,0 +1,26 @@
+/* 
+  Localizable.strings
+  LTPrivacyPermissionDemo
+
+  Created by huanyu.li on 2018/9/7.
+  Copyright © 2018年 lightank. All rights reserved.
+*/
+
+"Permission.Photo" = "打开相册权限";
+"Permission.Camera" = "打开相机权限";
+"Permission.AppleMusic" = "打开媒体资料库权限";
+"Permission.Microphone" = "打开麦克风权限";
+"Permission.LocationAlwaysAndWhenInUse" = "打开在使用期间/始终访问位置权限";
+"Permission.LocationAlways" = "打开始终访问位置权限";
+"Permission.LocationWhenInUse" = "打开使用期间访问位置权限";
+"Permission.PushNotification" = "打开推送权限";
+"Permission.Speech" = "打开语音识别权限";
+"Permission.CalendarEvent" = "打开日历权限";
+"Permission.Contacts" = "打开通讯录权限";
+"Permission.Reminder" = "打开提醒事项权限";
+"Permission.Network" = "打开网络权限";
+
+"Permission.ErrorTitle" = "没有权限访问";
+"Permission.ErrorTitleInfo" = "在没有权限的情况下,我们不能为您提供此项服务,请去应用设置中授权";
+"Permission.ErrorCancel" = "取消";
+"Permission.ErrorOpenSetting" = "去设置";

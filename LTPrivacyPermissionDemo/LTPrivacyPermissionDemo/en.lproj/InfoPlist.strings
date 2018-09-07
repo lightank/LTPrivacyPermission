@@ -1,0 +1,21 @@
+/* 
+  InfoPlist.strings
+  LTPrivacyPermissionDemo
+
+  Created by huanyu.li on 2018/9/7.
+  Copyright © 2018年 lightank. All rights reserved.
+*/
+
+CFBundleDisplayName = "LTPermission";
+
+NSPhotoLibraryUsageDescription = "PhotoLibraryUsage";
+NSCameraUsageDescription = "CameraUsage";
+NSAppleMusicUsageDescription = "AppleMusicUsage";
+NSMicrophoneUsageDescription = "MicrophoneUsage";
+NSLocationAlwaysAndWhenInUseUsageDescription = "LocationAlwaysAndWhenInUse";
+NSLocationAlwaysUsageDescription = "LocationAlwaysUsage";
+NSLocationWhenInUseUsageDescription = "LocationWhenInUseUsage";
+NSSpeechRecognitionUsageDescription = "SpeechRecognitionUsage";
+NSCalendarsUsageDescription = "CalendarsUsage";
+NSContactsUsageDescription = "ContactsUsage";
+NSRemindersUsageDescription = "RemindersUsage";

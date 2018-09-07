@@ -1,0 +1,21 @@
+/* 
+  InfoPlist.strings
+  LTPrivacyPermissionDemo
+
+  Created by huanyu.li on 2018/9/7.
+  Copyright © 2018年 lightank. All rights reserved.
+*/
+
+CFBundleDisplayName = "权限申请";
+
+NSPhotoLibraryUsageDescription = "需要你的同意,才能照片";
+NSCameraUsageDescription = "需要你的同意,才能访问相机";
+NSAppleMusicUsageDescription = "需要你的同意,才能访问媒体资料库";
+NSMicrophoneUsageDescription = "需要你的同意,才能访问麦克风";
+NSLocationAlwaysAndWhenInUseUsageDescription = "需要你的同意,才能在使用期间/始终访问位置";
+NSLocationAlwaysUsageDescription = "需要你的同意,才能始终访问位置";
+NSLocationWhenInUseUsageDescription = "需要你的同意,才能在使用期间访问位置";
+NSSpeechRecognitionUsageDescription = "需要你的同意,才能访问语音识别";
+NSCalendarsUsageDescription = "需要你的同意,才能访问日历";
+NSContactsUsageDescription = "需要你的同意,才能访问通讯录";
+NSRemindersUsageDescription = "需要你的同意,才能访问备忘录";

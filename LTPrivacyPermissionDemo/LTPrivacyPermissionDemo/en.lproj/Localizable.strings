@@ -1,0 +1,26 @@
+/* 
+  Localizable.strings
+  LTPrivacyPermissionDemo
+
+  Created by huanyu.li on 2018/9/7.
+  Copyright © 2018年 lightank. All rights reserved.
+*/
+
+"Permission.Photo" = "Access Photo Permission";
+"Permission.Camera" = "Access Camera Permission";
+"Permission.AppleMusic" = "Access AppleMusic Permission";
+"Permission.Microphone" = "Access Microphone Permission";
+"Permission.LocationAlwaysAndWhenInUse" = "Access Location Always And When InUse Permission";
+"Permission.LocationAlways" = "Access Location Always Permission";
+"Permission.LocationWhenInUse" = "Access Location When InUse Permission";
+"Permission.PushNotification" = "Access PushNotification Permission";
+"Permission.Speech" = "Access Speech Permission";
+"Permission.CalendarEvent" = "Access Calendar Event Permission";
+"Permission.Contacts" = "Access Contacts Permission";
+"Permission.Reminder" = "Access Reminder Permission";
+"Permission.Network" = "Access Network Permission";
+
+"Permission.ErrorTitle" = "No Access Permission";
+"Permission.ErrorTitleInfo" = "We can't provide service Without access permission, please go to application setting to authorize";
+"Permission.ErrorCancel" = "Cancel";
+"Permission.ErrorOpenSetting" = "Go to setting";
