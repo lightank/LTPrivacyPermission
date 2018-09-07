@@ -36,7 +36,7 @@ LTPrivacyPermission is a library for accessing various system privacy permission
 
  mainpage CN  | mainpage USA
   -----|-----
- ![Asset/permission_zh](Asset/permission_zh) |  ![Asset/permission_en](Asset/permission_en.png) 
+ ![Asset/permission_zh](https://github.com/lightank/LTPrivacyPermission/blob/master/Assert/permission_zh.png) |  ![Asset/permission_en](https://github.com/lightank/LTPrivacyPermission/blob/master/Assert/permission_en.png) 
  ---  
 
 ## Installation with cocoapods
@@ -67,6 +67,7 @@ example:
 
 ## Reference link
 
+* [PrivacyPermission](https://github.com/skooal/PrivacyPermission)
 
 ## License
 
