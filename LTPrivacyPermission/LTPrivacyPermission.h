@@ -9,7 +9,8 @@
 @import Foundation;
 @import UIKit;
 
-typedef NS_ENUM(NSUInteger, LTPrivacyPermissionType) {
+typedef NS_ENUM(NSUInteger, LTPrivacyPermissionType)
+{
     // Privacy - Photo Library Usage Description : NSPhotoLibraryUsageDescription
     // Privacy - Photo Library Additions Usage Description (after iOS 11) : NSPhotoLibraryAddUsageDescription
     LTPrivacyPermissionTypePhoto = 0,
