@@ -281,7 +281,7 @@
         }
             break;
             
-        case LTPrivacyPermissionTypeCalendarEvent:
+        case LTPrivacyPermissionTypeCalendar:
         {
             EKEventStore *store = [[EKEventStore alloc] init];
             [store requestAccessToEntityType:EKEntityTypeEvent completion:^(BOOL granted, NSError * _Nullable error) {

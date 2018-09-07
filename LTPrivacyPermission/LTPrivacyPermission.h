@@ -10,18 +10,32 @@
 @import UIKit;
 
 typedef NS_ENUM(NSUInteger, LTPrivacyPermissionType) {
+    // Privacy - Photo Library Usage Description : NSPhotoLibraryUsageDescription
+    // Privacy - Photo Library Additions Usage Description (after iOS 11) : NSPhotoLibraryAddUsageDescription
     LTPrivacyPermissionTypePhoto = 0,
+    // Privacy - Camera Usage Description : NSCameraUsageDescription
     LTPrivacyPermissionTypeCamera,
+    // Privacy - Media Library Usage Description : NSAppleMusicUsageDescription
     LTPrivacyPermissionTypeMediaLibrary,
+    // Privacy - Microphone Usage Description : NSMicrophoneUsageDescription
     LTPrivacyPermissionTypeMicrophone,
+    // Privacy - Location Always and When In Use Usage Description : NSLocationAlwaysAndWhenInUseUsageDescription
     LTPrivacyPermissionTypeLocationAlwaysAndWhenInUse,
+    // Privacy - Location Always Usage Description : NSLocationAlwaysUsageDescription
     LTPrivacyPermissionTypeLocationAlways,
+    // Privacy - Location When In Use Usage Description : NSLocationWhenInUseUsageDescription
     LTPrivacyPermissionTypeLocationWhenInUse,
-    LTPrivacyPermissionTypePushNotification,    // 在iOS 10 以下,由于无法取得回调,故回调 |status| 返回 |Unkonwn|, |authorized| 返回 NO
+    // 在iOS 10 以下,由于无法取得回调,故回调 |status| 返回 |Unkonwn|, |authorized| 返回 NO
+    LTPrivacyPermissionTypePushNotification,
+    // Privacy - Speech Recognition Usage Description : NSSpeechRecognitionUsageDescription
     LTPrivacyPermissionTypeSpeech,
-    LTPrivacyPermissionTypeCalendarEvent,   // 添加事件到系统日历中
+    // Privacy - Calendars Usage Description : NSCalendarsUsageDescription
+    LTPrivacyPermissionTypeCalendar,
+    // Privacy - Contacts Usage Description : NSContactsUsageDescription
     LTPrivacyPermissionTypeContact,
+    // Privacy - Reminders Usage Description : NSRemindersUsageDescription
     LTPrivacyPermissionTypeReminder,
+    // For China
     LTPrivacyPermissionTypeNetwork,
 };
 

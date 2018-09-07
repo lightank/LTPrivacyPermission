@@ -24,7 +24,7 @@ LTPrivacyPermission is a library for accessing various system privacy permission
 - PushNotification
 - Speech
     - Privacy - Speech Recognition Usage Description
-- Calendar Event
+- Calendar
     - Privacy - Calendars Usage Description
 - Contact
     - Privacy - Contacts Usage Description
