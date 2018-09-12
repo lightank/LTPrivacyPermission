@@ -49,7 +49,8 @@ typedef NS_ENUM(NSInteger, LTPrivacyPermissionAuthorizationStatus)
     LTPrivacyPermissionAuthorizationStatusLocationAlways,
     LTPrivacyPermissionAuthorizationStatusLocationWhenInUse,
     LTPrivacyPermissionAuthorizationStatusUnkonwn,
-    LTPrivacyPermissionAuthorizationStatusServicesDisabled, // 服务不可用,或当前版本没有相应的api,这个时候 |CompletionBlock| 里的 |authorized| 默认返回NO,可以通过 |servicesDisabledAuthorize| 来修改
+    // 服务不可用,或当前版本没有相应的api,这个时候 |CompletionBlock| 里的 |authorized| 默认返回NO,可以通过 |servicesDisabledAuthorize| 来修改
+    LTPrivacyPermissionAuthorizationStatusServicesDisabled,
 };
 
 typedef void(^CompletionBlock)(BOOL authorized, LTPrivacyPermissionAuthorizationStatus status);
