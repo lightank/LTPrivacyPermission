@@ -14,39 +14,49 @@
 #import <HealthKit/HealthKit.h>
 #import <CoreLocation/CoreLocation.h>
 
-#if __has_include(<CoreTelephony/CTCall.h>)
-#import <CoreTelephony/CTCall.h>
-#define LTLTPrivacyPermissionCoreTelephonyAvailable YES
-#else
-#define LTLTPrivacyPermissionCoreTelephonyAvailable NO
+#if __has_include(<CoreTelephony/CTCellularData.h>)
+#import <CoreTelephony/CTCellularData.h>
+
+#ifndef LTLTPrivacyPermissionCoreTelephonyAvailable
+#define LTLTPrivacyPermissionCoreTelephonyAvailable
+#endif
+
 #endif
 
 #if __has_include(<Speech/Speech.h>)
 #import <Speech/Speech.h>
-#define LTLTPrivacyPermissionSpeechAvailable YES
-#else
-#define LTLTPrivacyPermissionSpeechAvailable NO
+
+#ifndef LTLTPrivacyPermissionSpeechAvailable
+#define LTLTPrivacyPermissionSpeechAvailable
+#endif
+
 #endif
 
 #if __has_include(<MediaPlayer/MediaPlayer.h>)
 #import <MediaPlayer/MediaPlayer.h>
-#define LTLTPrivacyPermissionMediaLibraryAvailable YES
-#else
-#define LTLTPrivacyPermissionMediaLibraryAvailable NO
+
+#ifndef LTLTPrivacyPermissionMediaLibraryAvailable
+#define LTLTPrivacyPermissionMediaLibraryAvailable
+#endif
+
 #endif
 
 #if __has_include(<Contacts/Contacts.h>)
 #import <Contacts/Contacts.h>
-#define LTLTPrivacyPermissionContactAvailable YES
-#else
-#define LTLTPrivacyPermissionContactAvailable NO
+
+#ifndef LTLTPrivacyPermissionContactAvailable
+#define LTLTPrivacyPermissionContactAvailable
+#endif
+
 #endif
 
 #if __has_include(<UserNotifications/UserNotifications.h>)
 #import <UserNotifications/UserNotifications.h>
-#define LTLTPrivacyPermissionUserNotificationsAvailable YES
-#else
-#define LTLTPrivacyPermissionUserNotificationsAvailable NO
+
+#ifndef LTLTPrivacyPermissionUserNotificationsAvailable
+#define LTLTPrivacyPermissionUserNotificationsAvailable
+#endif
+
 #endif
 
 @interface LTPrivacyPermission () <CLLocationManagerDelegate>
@@ -142,9 +152,8 @@
             
         case LTPrivacyPermissionTypeMediaLibrary:
         {
-            if (@available(iOS 9.3, *))
-            {
-#if LTLTPrivacyPermissionMediaLibraryAvailable
+#ifdef LTLTPrivacyPermissionMediaLibraryAvailable
+            if (@available(iOS 9.3, *)) {
                 [MPMediaLibrary requestAuthorization:^(MPMediaLibraryAuthorizationStatus status) {
                     dispatch_async(dispatch_get_main_queue(), ^{
                         switch (status)
@@ -167,12 +176,10 @@
                         }
                     });
                 }];
-#endif
             }
-            else
-            {
+#elif
                 completion(self.isServicesDisabledAuthorize, LTPrivacyPermissionAuthorizationStatusServicesDisabled);
-            }
+#endif
         }
             break;
             
@@ -268,36 +275,74 @@
             
         case LTPrivacyPermissionTypePushNotification:
         {
-            if (@available(iOS 10.0, *))
-            {
-#if LTLTPrivacyPermissionUserNotificationsAvailable
+#ifdef LTLTPrivacyPermissionUserNotificationsAvailable
+            if (@available(iOS 10.0, *)) {
                 UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
-                UNAuthorizationOptions types = UNAuthorizationOptionBadge | UNAuthorizationOptionAlert |UNAuthorizationOptionSound;
-                [center requestAuthorizationWithOptions:types completionHandler:^(BOOL granted, NSError * _Nullable error) {
-                    //Queue: com.apple.usernotifications.UNUserNotificationServiceConnection.call-out (serial) 非主队列回调
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        completion(granted, granted ? LTPrivacyPermissionAuthorizationStatusAuthorized : LTPrivacyPermissionAuthorizationStatusDenied);
-                    });
+                [center getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
+                    UNAuthorizationStatus status = settings.authorizationStatus;
+                    switch (status)
+                    {
+                        case UNAuthorizationStatusNotDetermined:
+                        {
+                            UNAuthorizationOptions types = UNAuthorizationOptionBadge | UNAuthorizationOptionAlert |UNAuthorizationOptionSound;
+                            [center requestAuthorizationWithOptions:types completionHandler:^(BOOL granted, NSError * _Nullable error) {
+                                dispatch_async(dispatch_get_main_queue(), ^{
+                                    completion(granted, granted ? LTPrivacyPermissionAuthorizationStatusAuthorized : LTPrivacyPermissionAuthorizationStatusDenied);
+                                });
+                            }];
+                        }
+                            break;
+                            
+                        case UNAuthorizationStatusDenied:
+                        {
+                            completion(NO, LTPrivacyPermissionAuthorizationStatusDenied);
+                        }
+                            break;
+                            
+                        case UNAuthorizationStatusAuthorized:
+                        case UNAuthorizationStatusProvisional:
+                        {
+                            completion(YES, LTPrivacyPermissionAuthorizationStatusAuthorized);
+                        }
+                            break;
+                            
+                        default:
+                            break;
+                    }
+                    
                 }];
-#endif
             }
-            else
-            {
+#else
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored"-Wdeprecated-declarations"
-                [[UIApplication sharedApplication] registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:UIUserNotificationTypeAlert | UIUserNotificationTypeSound | UIUserNotificationTypeBadge categories:nil]];
-                completion(NO, LTPrivacyPermissionAuthorizationStatusUnkonwn);
+                UIUserNotificationType status = [[UIApplication sharedApplication] currentUserNotificationSettings].types;
+                switch (status)
+                {
+                    case UIUserNotificationTypeNone:
+                    {
+                        [[UIApplication sharedApplication] registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:UIUserNotificationTypeAlert | UIUserNotificationTypeSound | UIUserNotificationTypeBadge categories:nil]];
+                        completion(NO, LTPrivacyPermissionAuthorizationStatusDenied);
+                    }
+                        break;
+                    case UIUserNotificationTypeBadge:
+                    case UIUserNotificationTypeSound:
+                    case UIUserNotificationTypeAlert:
+                    {
+                        completion(YES, LTPrivacyPermissionAuthorizationStatusAuthorized);
+                    }
+                        break;
+                    default:
+                        break;
+                }
 #pragma clang diagnostic pop
-            }
-
+#endif
         }
             break;
             
         case LTPrivacyPermissionTypeSpeech:
         {
-            if (@available(iOS 10, *))
-            {
-#if LTLTPrivacyPermissionSpeechAvailable
+#ifdef LTLTPrivacyPermissionSpeechAvailable
+            if (@available(iOS 10.0, *)) {
                 [SFSpeechRecognizer requestAuthorization:^(SFSpeechRecognizerAuthorizationStatus status) {
                     dispatch_async(dispatch_get_main_queue(), ^{
                         switch (status)
@@ -320,12 +365,10 @@
                         }
                     });
                 }];
+            }
+#elif
+            completion(self.isServicesDisabledAuthorize, LTPrivacyPermissionAuthorizationStatusServicesDisabled);
 #endif
-            }
-            else
-            {
-                completion(self.isServicesDisabledAuthorize, LTPrivacyPermissionAuthorizationStatusServicesDisabled);
-            }
         }
             break;
             
@@ -360,9 +403,9 @@
             
         case LTPrivacyPermissionTypeContact:
         {
-            if (@available(iOS 9, *))
+#ifdef  LTLTPrivacyPermissionContactAvailable
+            if (@available(iOS 9.0, *))
             {
-#if LTLTPrivacyPermissionContactAvailable
                 CNAuthorizationStatus status = [CNContactStore authorizationStatusForEntityType:CNEntityTypeContacts];
                 switch (status)
                 {
@@ -388,10 +431,8 @@
                     }
                         break;
                 }
-#endif
             }
-            else
-            {
+#elif
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored"-Wdeprecated-declarations"
                 ABAuthorizationStatus status = ABAddressBookGetAuthorizationStatus();
@@ -428,6 +469,8 @@
                 }
             }
 #pragma clang diagnostic pop
+#endif
+            
         }
             break;
             
@@ -463,9 +506,7 @@
             
         case LTPrivacyPermissionTypeNetwork:
         {
-            if (@available(iOS 9, *))
-            {
-#if LTLTPrivacyPermissionCoreTelephonyAvailable
+#ifdef LTLTPrivacyPermissionCoreTelephonyAvailable
                 CTCellularData *cellularData = [[CTCellularData alloc] init];
                 CTCellularDataRestrictedState status = cellularData.restrictedState;
                 
@@ -516,12 +557,9 @@
                     }
                         break;
                 }
+#elif
+        completion(self.isServicesDisabledAuthorize, LTPrivacyPermissionAuthorizationStatusServicesDisabled);
 #endif
-            }
-            else
-            {
-                completion(self.isServicesDisabledAuthorize, LTPrivacyPermissionAuthorizationStatusServicesDisabled);
-            }
         }
             break;
     }
