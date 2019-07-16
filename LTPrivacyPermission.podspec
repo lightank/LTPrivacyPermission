@@ -16,8 +16,8 @@ Pod::Spec.new do |s|
   #
 
   s.name         = "LTPrivacyPermission"
-  s.version      = "0.0.3"
-  s.summary      = "LTPrivacyPermission is a library for accessing various system privacy permissions"
+  s.version      = "0.0.4"
+  s.summary      = "LTPrivacyPermission is a library for accessing/check various system privacy permissions"
 
   # This description is used to generate tags and improve search results.
   #   * Think: What does it do? Why did you write it? What is the focus?
@@ -25,7 +25,7 @@ Pod::Spec.new do |s|
   #   * Write the description between the DESC delimiters below.
   #   * Finally, don't worry about the indent, CocoaPods strips it!
   s.description  = <<-DESC
-  LTPrivacyPermission is a library for accessing various system privacy permissions, you can use it for more friendly access.
+  LTPrivacyPermission is a library for accessing/checking various system privacy permissions, you can use it for more friendly access.
                    DESC
 
   s.homepage     = "https://github.com/lightank/LTPrivacyPermission"
