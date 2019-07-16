@@ -74,6 +74,14 @@ typedef void(^LTPrivacyPermissionCompletionBlock)(BOOL authorized, LTPrivacyPerm
 - (void)accessPrivacyPermissionWithType:(LTPrivacyPermissionType)type
                              completion:(LTPrivacyPermissionCompletionBlock)completion;
 
+/**
+ * @brief `Function for check the permissions` -> 检查是否有无权限函数,仅做检测
+ * @param type `The enumeration type for check permission` -> 检测权限枚举类型
+ * @param completion `A block for the permission result and the value of authorization status` -> 检测权限结果和对应权限状态的block
+ */
+- (void)checkPrivacyPermissionWithType:(LTPrivacyPermissionType)type
+                            completion:(LTPrivacyPermissionCompletionBlock)completion;
+
 
 + (void)openApplicationSettings;
 

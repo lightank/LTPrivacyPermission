@@ -63,8 +63,9 @@
 
 /**  定位  */
 @property (nonatomic, strong) CLLocationManager *locationManager;
-/**  定位回调  */
-@property (nonatomic, copy) LTPrivacyPermissionCompletionBlock locationCompletion;
+
+/**  完成回调  */
+@property (nonatomic, copy) LTPrivacyPermissionCompletionBlock completionBlock;
 
 @end
 
@@ -86,485 +87,684 @@
     return [self sharedPermission];
 }
 
-- (void)accessPrivacyPermissionWithType:(LTPrivacyPermissionType)type
-                             completion:(LTPrivacyPermissionCompletionBlock)completion
+- (void)privacyPermissionWithType:(LTPrivacyPermissionType)type
+                       completion:(LTPrivacyPermissionCompletionBlock)completion
+        shouldAccessAuthorization:(BOOL)access
 {
-    completion = completion ? : ^(BOOL authorized, LTPrivacyPermissionAuthorizationStatus status) {
-        
-    };
-    
+    self.completionBlock = completion;
     switch (type)
     {
         case LTPrivacyPermissionTypePhoto:
-        {
-            [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    switch (status)
-                    {
-                        case PHAuthorizationStatusNotDetermined:
-                            completion(NO, LTPrivacyPermissionAuthorizationStatusNotDetermined);
-                            break;
-                            
-                        case PHAuthorizationStatusRestricted:
-                            completion(NO, LTPrivacyPermissionAuthorizationStatusRestricted);
-                            break;
-                            
-                        case PHAuthorizationStatusDenied:
-                            completion(NO, LTPrivacyPermissionAuthorizationStatusDenied);
-                            break;
-                            
-                        case PHAuthorizationStatusAuthorized:
-                            completion(YES, LTPrivacyPermissionAuthorizationStatusAuthorized);
-                            break;
-                    }
-                });
-            }];
-        }
+            [self PhotoAuthorizationWhetherAccessAuthorization:access];
             break;
             
         case LTPrivacyPermissionTypeCamera:
-        {
-            [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
-                AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    switch (status)
-                    {
-                        case AVAuthorizationStatusNotDetermined:
-                            completion(NO, LTPrivacyPermissionAuthorizationStatusNotDetermined);
-                            break;
-                            
-                        case AVAuthorizationStatusRestricted:
-                            completion(NO, LTPrivacyPermissionAuthorizationStatusRestricted);
-                            break;
-                            
-                        case AVAuthorizationStatusDenied:
-                            completion(NO, LTPrivacyPermissionAuthorizationStatusDenied);
-                            break;
-                            
-                        case AVAuthorizationStatusAuthorized:
-                            completion(YES, LTPrivacyPermissionAuthorizationStatusAuthorized);
-                            break;
-                    }
-                });
-            }];
-        }
+            [self AVCaptureDeviceAuthorizationStatusForMediaType:AVMediaTypeVideo shouldAccessAuthorization:access];
             break;
             
         case LTPrivacyPermissionTypeMediaLibrary:
-        {
-#ifdef LTLTPrivacyPermissionMediaLibraryAvailable
-            if (@available(iOS 9.3, *)) {
-                [MPMediaLibrary requestAuthorization:^(MPMediaLibraryAuthorizationStatus status) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        switch (status)
-                        {
-                            case MPMediaLibraryAuthorizationStatusNotDetermined:
-                                completion(NO, LTPrivacyPermissionAuthorizationStatusNotDetermined);
-                                break;
-                                
-                            case MPMediaLibraryAuthorizationStatusDenied:
-                                completion(NO, LTPrivacyPermissionAuthorizationStatusDenied);
-                                break;
-                                
-                            case MPMediaLibraryAuthorizationStatusRestricted:
-                                completion(NO, LTPrivacyPermissionAuthorizationStatusRestricted);
-                                break;
-                                
-                            case MPMediaLibraryAuthorizationStatusAuthorized:
-                                completion(YES, LTPrivacyPermissionAuthorizationStatusNotDetermined);
-                                break;
-                        }
-                    });
-                }];
-            }
-#elif
-                completion(self.isServicesDisabledAuthorize, LTPrivacyPermissionAuthorizationStatusServicesDisabled);
-#endif
-        }
+            [self MediaLibraryAuthorizationWhetherAccessAuthorization:access];
             break;
             
         case LTPrivacyPermissionTypeMicrophone:
-        {
-            [AVCaptureDevice requestAccessForMediaType:AVMediaTypeAudio completionHandler:^(BOOL granted) {
-                AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio];
-                switch (status)
-                {
-                    case AVAuthorizationStatusDenied:
-                        completion(NO, LTPrivacyPermissionAuthorizationStatusDenied);
-                        break;
-
-                    case AVAuthorizationStatusNotDetermined:
-                        completion(NO, LTPrivacyPermissionAuthorizationStatusNotDetermined);
-                        break;
-
-                    case AVAuthorizationStatusRestricted:
-                        completion(NO, LTPrivacyPermissionAuthorizationStatusRestricted);
-                        break;
-
-                    case AVAuthorizationStatusAuthorized:
-                        completion(YES, LTPrivacyPermissionAuthorizationStatusAuthorized);
-                        break;
-                }
-            }];
-        }
+            [self AVCaptureDeviceAuthorizationStatusForMediaType:AVMediaTypeAudio shouldAccessAuthorization:access];
             break;
             
         case LTPrivacyPermissionTypeLocationAlways:
-        case LTPrivacyPermissionTypeLocationWhenInUse:
-        case LTPrivacyPermissionTypeLocationAlwaysAndWhenInUse:
-        {
-            if (![CLLocationManager locationServicesEnabled])
-            {
-                completion(self.isServicesDisabledAuthorize, LTPrivacyPermissionAuthorizationStatusServicesDisabled);
-                break;
-            }
+            [self LocationAuthorizationStatusForMediaType:LTPrivacyPermissionTypeLocationAlways shouldAccessAuthorization:access];
+            break;
             
-            CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
-            switch (status)
-            {
-                case kCLAuthorizationStatusNotDetermined:
-                {
-                    self.locationCompletion = completion;
-                    
-                    switch (type)
-                    {
-                        case LTPrivacyPermissionTypeLocationAlways:
-                        {
-                            [self.locationManager requestAlwaysAuthorization];
-                        }
-                            break;
-                            
-                        case LTPrivacyPermissionTypeLocationWhenInUse:
-                        {
-                            [self.locationManager requestWhenInUseAuthorization];
-                        }
-                            break;
-                            
-                        case LTPrivacyPermissionTypeLocationAlwaysAndWhenInUse:
-                        {
-                            [self.locationManager requestAlwaysAuthorization];
-                            [self.locationManager requestWhenInUseAuthorization];
-                        }
-                            break;
-                            
-                        default:
-                            break;
-                    }
-
-                }
-                    break;
-                    
-                case kCLAuthorizationStatusDenied:
-                    completion(NO, LTPrivacyPermissionAuthorizationStatusDenied);
-                    break;
-                    
-                case kCLAuthorizationStatusAuthorizedAlways:
-                    completion(YES, LTPrivacyPermissionAuthorizationStatusLocationAlways);
-                    break;
-                    
-                case kCLAuthorizationStatusAuthorizedWhenInUse:
-                    completion(YES, LTPrivacyPermissionAuthorizationStatusLocationWhenInUse);
-                    break;
-                    
-                case kCLAuthorizationStatusRestricted:
-                    completion(NO, LTPrivacyPermissionAuthorizationStatusRestricted);
-                    break;
-            }
-        }
+        case LTPrivacyPermissionTypeLocationWhenInUse:
+            [self LocationAuthorizationStatusForMediaType:LTPrivacyPermissionTypeLocationWhenInUse shouldAccessAuthorization:access];
+            break;
+            
+        case LTPrivacyPermissionTypeLocationAlwaysAndWhenInUse:
+            [self LocationAuthorizationStatusForMediaType:LTPrivacyPermissionTypeLocationWhenInUse shouldAccessAuthorization:access];
             break;
             
         case LTPrivacyPermissionTypePushNotification:
-        {
-#ifdef LTLTPrivacyPermissionUserNotificationsAvailable
-            if (@available(iOS 10.0, *)) {
-                UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
-                [center getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
-                    UNAuthorizationStatus status = settings.authorizationStatus;
-                    switch (status)
-                    {
-                        case UNAuthorizationStatusNotDetermined:
-                        {
-                            UNAuthorizationOptions types = UNAuthorizationOptionBadge | UNAuthorizationOptionAlert |UNAuthorizationOptionSound;
-                            [center requestAuthorizationWithOptions:types completionHandler:^(BOOL granted, NSError * _Nullable error) {
-                                dispatch_async(dispatch_get_main_queue(), ^{
-                                    completion(granted, granted ? LTPrivacyPermissionAuthorizationStatusAuthorized : LTPrivacyPermissionAuthorizationStatusDenied);
-                                });
-                            }];
-                        }
-                            break;
-                            
-                        case UNAuthorizationStatusDenied:
-                        {
-                            completion(NO, LTPrivacyPermissionAuthorizationStatusDenied);
-                        }
-                            break;
-                            
-                        case UNAuthorizationStatusAuthorized:
-                        case UNAuthorizationStatusProvisional:
-                        {
-                            completion(YES, LTPrivacyPermissionAuthorizationStatusAuthorized);
-                        }
-                            break;
-                            
-                        default:
-                            break;
-                    }
-                    
-                }];
-            }
-#else
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored"-Wdeprecated-declarations"
-                UIUserNotificationType status = [[UIApplication sharedApplication] currentUserNotificationSettings].types;
-                switch (status)
-                {
-                    case UIUserNotificationTypeNone:
-                    {
-                        [[UIApplication sharedApplication] registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:UIUserNotificationTypeAlert | UIUserNotificationTypeSound | UIUserNotificationTypeBadge categories:nil]];
-                        completion(NO, LTPrivacyPermissionAuthorizationStatusDenied);
-                    }
-                        break;
-                    case UIUserNotificationTypeBadge:
-                    case UIUserNotificationTypeSound:
-                    case UIUserNotificationTypeAlert:
-                    {
-                        completion(YES, LTPrivacyPermissionAuthorizationStatusAuthorized);
-                    }
-                        break;
-                    default:
-                        break;
-                }
-#pragma clang diagnostic pop
-#endif
-        }
+            [self PushNotificationAuthorizationWhetherAccessAuthorization:access];
             break;
             
         case LTPrivacyPermissionTypeSpeech:
-        {
-#ifdef LTLTPrivacyPermissionSpeechAvailable
-            if (@available(iOS 10.0, *)) {
-                [SFSpeechRecognizer requestAuthorization:^(SFSpeechRecognizerAuthorizationStatus status) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        switch (status)
-                        {
-                            case SFSpeechRecognizerAuthorizationStatusDenied:
-                                completion(NO, LTPrivacyPermissionAuthorizationStatusDenied);
-                                break;
-                                
-                            case SFSpeechRecognizerAuthorizationStatusNotDetermined:
-                                completion(NO, LTPrivacyPermissionAuthorizationStatusNotDetermined);
-                                break;
-                                
-                            case SFSpeechRecognizerAuthorizationStatusRestricted:
-                                completion(NO, LTPrivacyPermissionAuthorizationStatusRestricted);
-                                break;
-                                
-                            case SFSpeechRecognizerAuthorizationStatusAuthorized:
-                                completion(YES, LTPrivacyPermissionAuthorizationStatusAuthorized);
-                                break;
-                        }
-                    });
-                }];
-            }
-#elif
-            completion(self.isServicesDisabledAuthorize, LTPrivacyPermissionAuthorizationStatusServicesDisabled);
-#endif
-        }
+            [self SpeechAuthorizationWhetherAccessAuthorization:access];
             break;
             
         case LTPrivacyPermissionTypeCalendar:
-        {
-            EKEventStore *store = [[EKEventStore alloc] init];
-            [store requestAccessToEntityType:EKEntityTypeEvent completion:^(BOOL granted, NSError * _Nullable error) {
-                EKAuthorizationStatus status = [EKEventStore  authorizationStatusForEntityType:EKEntityTypeEvent];
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    switch (status)
-                    {
-                        case EKAuthorizationStatusAuthorized:
-                            completion(YES, LTPrivacyPermissionAuthorizationStatusAuthorized);
-                            break;
-                            
-                        case EKAuthorizationStatusDenied:
-                            completion(NO, LTPrivacyPermissionAuthorizationStatusDenied);
-                            break;
-                            
-                        case EKAuthorizationStatusNotDetermined:
-                            completion(NO, LTPrivacyPermissionAuthorizationStatusNotDetermined);
-                            break;
-                            
-                        case EKAuthorizationStatusRestricted:
-                            completion(NO, LTPrivacyPermissionAuthorizationStatusRestricted);
-                            break;
-                    }
-                });
-            }];
-        }
+            [self EKEventStoreAuthorizationStatusForEntityType:EKEntityTypeEvent shouldAccessAuthorization:access];
             break;
             
         case LTPrivacyPermissionTypeContact:
-        {
-#ifdef  LTLTPrivacyPermissionContactAvailable
-            if (@available(iOS 9.0, *))
-            {
-                CNAuthorizationStatus status = [CNContactStore authorizationStatusForEntityType:CNEntityTypeContacts];
-                switch (status)
-                {
-                    case CNAuthorizationStatusAuthorized:
-                        completion(YES, LTPrivacyPermissionAuthorizationStatusAuthorized);
-                        break;
-                        
-                    case CNAuthorizationStatusDenied:
-                        completion(NO, LTPrivacyPermissionAuthorizationStatusDenied);
-                        break;
-                        
-                    case CNAuthorizationStatusRestricted:
-                        completion(NO, LTPrivacyPermissionAuthorizationStatusRestricted);
-                        break;
-                        
-                    case CNAuthorizationStatusNotDetermined:
-                    {
-                        [[CNContactStore new] requestAccessForEntityType:CNEntityTypeContacts completionHandler:^(BOOL granted, NSError * _Nullable error) {
-                            dispatch_async(dispatch_get_main_queue(), ^{
-                                completion(granted, granted ? LTPrivacyPermissionAuthorizationStatusAuthorized : LTPrivacyPermissionAuthorizationStatusDenied);
-                            });
-                        }];
-                    }
-                        break;
-                }
-            }
-#elif
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored"-Wdeprecated-declarations"
-                ABAuthorizationStatus status = ABAddressBookGetAuthorizationStatus();
-                switch (status)
-                {
-                    case kABAuthorizationStatusAuthorized:
-                    {
-                        completion(YES, LTPrivacyPermissionAuthorizationStatusAuthorized);
-                    }
-                        break;
-                        
-                    case kABAuthorizationStatusNotDetermined:
-                    {
-                        ABAddressBookRef addressBook = ABAddressBookCreateWithOptions(NULL, NULL);
-                        ABAddressBookRequestAccessWithCompletion(addressBook, ^(bool granted, CFErrorRef error) {
-                            dispatch_async(dispatch_get_main_queue(), ^{
-                                completion(granted, granted ? LTPrivacyPermissionAuthorizationStatusAuthorized : LTPrivacyPermissionAuthorizationStatusDenied);
-                            });
-                        });
-                    }
-                        break;
-                        
-                    case kABAuthorizationStatusRestricted:
-                    {
-                        completion(NO, LTPrivacyPermissionAuthorizationStatusRestricted);
-                    }
-                        break;
-                        
-                    case kABAuthorizationStatusDenied:
-                    {
-                        completion(NO, LTPrivacyPermissionAuthorizationStatusDenied);
-                    }
-                        break;
-                }
-            }
-#pragma clang diagnostic pop
-#endif
-            
-        }
+            [self ContactAuthorizationWhetherAccessAuthorization:access];
             break;
-            
+        
         case LTPrivacyPermissionTypeReminder:
-        {
-            EKEventStore *eventStore = [[EKEventStore alloc] init];
-            [eventStore requestAccessToEntityType:EKEntityTypeReminder completion:^(BOOL granted, NSError * _Nullable error) {
-                EKAuthorizationStatus status = [EKEventStore  authorizationStatusForEntityType:EKEntityTypeEvent];
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    switch (status)
-                    {
-                        case EKAuthorizationStatusNotDetermined:
-                            completion(NO, LTPrivacyPermissionAuthorizationStatusNotDetermined);
-                            break;
-                            
-                        case EKAuthorizationStatusRestricted:
-                            completion(NO, LTPrivacyPermissionAuthorizationStatusRestricted);
-                            break;
-                            
-                        case EKAuthorizationStatusDenied:
-                            completion(NO, LTPrivacyPermissionAuthorizationStatusDenied);
-                            break;
-                            
-                        case EKAuthorizationStatusAuthorized:
-                            completion(YES, LTPrivacyPermissionAuthorizationStatusAuthorized);
-                            break;
-                    }
-                });
-            }];
-        }
+            [self EKEventStoreAuthorizationStatusForEntityType:EKEntityTypeReminder shouldAccessAuthorization:access];
             break;
-            
             
         case LTPrivacyPermissionTypeNetwork:
-        {
-#ifdef LTLTPrivacyPermissionCoreTelephonyAvailable
-                CTCellularData *cellularData = [[CTCellularData alloc] init];
-                CTCellularDataRestrictedState status = cellularData.restrictedState;
-                
-                switch (status)
-                {
-                    case kCTCellularDataNotRestricted:
-                    {
-                        //没有限制
-                        completion(YES, LTPrivacyPermissionAuthorizationStatusAuthorized);
-                    }
-                        break;
-                        
-                    case kCTCellularDataRestricted:
-                    {
-                        //限制
-                        completion(NO, LTPrivacyPermissionAuthorizationStatusDenied);
-                    }
-                        break;
-                        
-                    case kCTCellularDataRestrictedStateUnknown:
-                    {
-                        [cellularData setCellularDataRestrictionDidUpdateNotifier:^(CTCellularDataRestrictedState newState) {
-                            dispatch_async(dispatch_get_main_queue(), ^{
-                                switch (newState)
-                                {
-                                    case kCTCellularDataNotRestricted:
-                                    {
-                                        //没有限制
-                                        completion(YES, LTPrivacyPermissionAuthorizationStatusAuthorized);
-                                    }
-                                        break;
-                                        
-                                    case kCTCellularDataRestricted:
-                                    {
-                                        //限制
-                                        completion(NO, LTPrivacyPermissionAuthorizationStatusDenied);
-                                    }
-                                        break;
-                                    
-                                    case kCTCellularDataRestrictedStateUnknown:
-                                    {
-                                        completion(NO, LTPrivacyPermissionAuthorizationStatusUnkonwn);
-                                    }
-                                        break;
-                                }
-                            });
-                        }];
-                    }
-                        break;
-                }
-#elif
-        completion(self.isServicesDisabledAuthorize, LTPrivacyPermissionAuthorizationStatusServicesDisabled);
-#endif
-        }
+            [self NetworkAuthorizationWhetherAccessAuthorization:access];
             break;
     }
 }
 
+
+- (void)accessPrivacyPermissionWithType:(LTPrivacyPermissionType)type
+                             completion:(LTPrivacyPermissionCompletionBlock)completion
+{
+    [self privacyPermissionWithType:type completion:completion shouldAccessAuthorization:YES];
+}
+
+- (void)checkPrivacyPermissionWithType:(LTPrivacyPermissionType)type
+                            completion:(LTPrivacyPermissionCompletionBlock)completion
+{
+    [self privacyPermissionWithType:type completion:completion shouldAccessAuthorization:NO];
+}
+
+- (void)completionWithAuthorized:(BOOL)authorized authorizationStatus:(LTPrivacyPermissionAuthorizationStatus)status
+{
+    if (self.completionBlock)
+    {
+        if ([NSThread currentThread].isMainThread)
+        {
+            self.completionBlock(authorized, status);
+            self.completionBlock = nil;
+        }
+        else
+        {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                self.completionBlock(authorized, status);
+                self.completionBlock = nil;
+            });
+        }
+    }
+}
+
+#pragma mark - 单个授权
+
+- (void)PhotoAuthorizationWhetherAccessAuthorization:(BOOL)access
+{
+    if (access)
+    {
+        [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                switch (status)
+                {
+                    case PHAuthorizationStatusNotDetermined:
+                        [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusNotDetermined];
+                        break;
+                        
+                    case PHAuthorizationStatusRestricted:
+                        [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusRestricted];
+                        break;
+                        
+                    case PHAuthorizationStatusDenied:
+                        [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusDenied];
+                        break;
+                        
+                    case PHAuthorizationStatusAuthorized:
+                        [self completionWithAuthorized:YES authorizationStatus:LTPrivacyPermissionAuthorizationStatusAuthorized];
+                        break;
+                }
+            });
+        }];
+    }
+    else
+    {
+        PHAuthorizationStatus status = [PHPhotoLibrary authorizationStatus];
+        switch (status)
+        {
+            case PHAuthorizationStatusNotDetermined:
+                [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusNotDetermined];
+                break;
+                
+            case PHAuthorizationStatusRestricted:
+                [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusRestricted];
+                break;
+                
+            case PHAuthorizationStatusDenied:
+                [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusDenied];
+                break;
+                
+            case PHAuthorizationStatusAuthorized:
+                [self completionWithAuthorized:YES authorizationStatus:LTPrivacyPermissionAuthorizationStatusAuthorized];
+                break;
+        }
+
+    }
+}
+
+- (void)AVCaptureDeviceAuthorizationStatusForMediaType:(AVMediaType)mediaType shouldAccessAuthorization:(BOOL)access
+{
+    if (access)
+    {
+        [AVCaptureDevice requestAccessForMediaType:mediaType completionHandler:^(BOOL granted) {
+            AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                switch (status)
+                {
+                    case AVAuthorizationStatusNotDetermined:
+                        [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusNotDetermined];
+                        break;
+                        
+                    case AVAuthorizationStatusRestricted:
+                        [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusRestricted];
+                        break;
+                        
+                    case AVAuthorizationStatusDenied:
+                        [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusDenied];
+                        break;
+                        
+                    case AVAuthorizationStatusAuthorized:
+                        [self completionWithAuthorized:YES authorizationStatus:LTPrivacyPermissionAuthorizationStatusAuthorized];
+                        break;
+                }
+            });
+        }];
+    }
+    else
+    {
+        AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:mediaType];
+        switch (status)
+        {
+            case AVAuthorizationStatusNotDetermined:
+                [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusNotDetermined];
+                break;
+                
+            case AVAuthorizationStatusRestricted:
+                [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusRestricted];
+                break;
+                
+            case AVAuthorizationStatusDenied:
+                [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusDenied];
+                break;
+                
+            case AVAuthorizationStatusAuthorized:
+                [self completionWithAuthorized:YES authorizationStatus:LTPrivacyPermissionAuthorizationStatusAuthorized];
+                break;
+        }
+    }
+}
+
+- (void)MediaLibraryAuthorizationWhetherAccessAuthorization:(BOOL)access
+{
+    if (access)
+    {
+#ifdef LTLTPrivacyPermissionMediaLibraryAvailable
+        if (@available(iOS 9.3, *)) {
+            [MPMediaLibrary requestAuthorization:^(MPMediaLibraryAuthorizationStatus status) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    switch (status)
+                    {
+                        case MPMediaLibraryAuthorizationStatusNotDetermined:
+                            [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusNotDetermined];
+                            break;
+                            
+                        case MPMediaLibraryAuthorizationStatusDenied:
+                            [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusDenied];
+                            break;
+                            
+                        case MPMediaLibraryAuthorizationStatusRestricted:
+                            [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusRestricted];
+                            break;
+                            
+                        case MPMediaLibraryAuthorizationStatusAuthorized:
+                            [self completionWithAuthorized:YES authorizationStatus:LTPrivacyPermissionAuthorizationStatusAuthorized];
+                            break;
+                    }
+                });
+            }];
+        }
+#elif
+        [self completionWithAuthorized:self.isServicesDisabledAuthorize authorizationStatus:LTPrivacyPermissionAuthorizationStatusServicesDisabled];
+#endif
+    }
+    else
+    {
+#ifdef LTLTPrivacyPermissionMediaLibraryAvailable
+        if (@available(iOS 9.3, *))
+        {
+            MPMediaLibraryAuthorizationStatus status = [MPMediaLibrary authorizationStatus];
+            switch (status)
+            {
+                case MPMediaLibraryAuthorizationStatusNotDetermined:
+                    [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusNotDetermined];
+                    break;
+                    
+                case MPMediaLibraryAuthorizationStatusDenied:
+                    [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusDenied];
+                    break;
+                    
+                case MPMediaLibraryAuthorizationStatusRestricted:
+                    [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusRestricted];
+                    break;
+                    
+                case MPMediaLibraryAuthorizationStatusAuthorized:
+                    [self completionWithAuthorized:YES authorizationStatus:LTPrivacyPermissionAuthorizationStatusAuthorized];
+                    break;
+            }
+        }
+#elif
+        [self completionWithAuthorized:self.isServicesDisabledAuthorize authorizationStatus:LTPrivacyPermissionAuthorizationStatusServicesDisabled];
+#endif
+    }
+}
+
+- (void)LocationAuthorizationStatusForMediaType:(LTPrivacyPermissionType)type shouldAccessAuthorization:(BOOL)access
+{
+    BOOL isLocation = (type == LTPrivacyPermissionTypeLocationAlways || type == LTPrivacyPermissionTypeLocationWhenInUse || type == LTPrivacyPermissionTypeLocationAlwaysAndWhenInUse);
+    if (!isLocation)
+    {
+        return;
+    }
+    
+    if (![CLLocationManager locationServicesEnabled])
+    {
+        [self completionWithAuthorized:self.isServicesDisabledAuthorize authorizationStatus:LTPrivacyPermissionAuthorizationStatusServicesDisabled];
+        return;
+    }
+    
+    CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
+    switch (status)
+    {
+        case kCLAuthorizationStatusNotDetermined:
+        {
+            if (access)
+            {
+                switch (type)
+                {
+                    case LTPrivacyPermissionTypeLocationAlways:
+                    {
+                        [self.locationManager requestAlwaysAuthorization];
+                    }
+                        break;
+                        
+                    case LTPrivacyPermissionTypeLocationWhenInUse:
+                    {
+                        [self.locationManager requestWhenInUseAuthorization];
+                    }
+                        break;
+                        
+                    case LTPrivacyPermissionTypeLocationAlwaysAndWhenInUse:
+                    {
+                        [self.locationManager requestAlwaysAuthorization];
+                        [self.locationManager requestWhenInUseAuthorization];
+                    }
+                        break;
+                        
+                    default:
+                        break;
+                }
+            }
+            else
+            {
+                [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusNotDetermined];
+            }
+        }
+            break;
+            
+        case kCLAuthorizationStatusDenied:
+            [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusDenied];
+            break;
+            
+        case kCLAuthorizationStatusAuthorizedAlways:
+            [self completionWithAuthorized:YES authorizationStatus:LTPrivacyPermissionAuthorizationStatusLocationAlways];
+            break;
+            
+        case kCLAuthorizationStatusAuthorizedWhenInUse:
+            [self completionWithAuthorized:YES authorizationStatus:LTPrivacyPermissionAuthorizationStatusLocationWhenInUse];
+            break;
+            
+        case kCLAuthorizationStatusRestricted:
+            [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusRestricted];
+            break;
+    }
+}
+
+- (void)PushNotificationAuthorizationWhetherAccessAuthorization:(BOOL)access
+{
+#ifdef LTLTPrivacyPermissionUserNotificationsAvailable
+    if (@available(iOS 10.0, *)) {
+        UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+        [center getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
+            UNAuthorizationStatus status = settings.authorizationStatus;
+            switch (status)
+            {
+                case UNAuthorizationStatusNotDetermined:
+                {
+                    if (access)
+                    {
+                        UNAuthorizationOptions types = UNAuthorizationOptionBadge | UNAuthorizationOptionAlert |UNAuthorizationOptionSound;
+                        [center requestAuthorizationWithOptions:types completionHandler:^(BOOL granted, NSError * _Nullable error) {
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                                [self completionWithAuthorized:granted authorizationStatus:granted ? LTPrivacyPermissionAuthorizationStatusAuthorized : LTPrivacyPermissionAuthorizationStatusDenied];
+                            });
+                        }];
+                    }
+                    else
+                    {
+                        [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusNotDetermined];
+                    }
+                }
+                    break;
+                    
+                case UNAuthorizationStatusDenied:
+                {
+                    [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusDenied];
+                }
+                    break;
+                    
+                case UNAuthorizationStatusAuthorized:
+                case UNAuthorizationStatusProvisional:
+                {
+                    [self completionWithAuthorized:YES authorizationStatus:LTPrivacyPermissionAuthorizationStatusAuthorized];
+                }
+                    break;
+                    
+                default:
+                    break;
+            }
+            
+        }];
+    }
+#else
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored"-Wdeprecated-declarations"
+    UIUserNotificationType status = [[UIApplication sharedApplication] currentUserNotificationSettings].types;
+    switch (status)
+    {
+        case UIUserNotificationTypeNone:
+        {
+            if (access)
+            {
+                [[UIApplication sharedApplication] registerUserNotificationSettings:[UIUserNotificationSettings settingsForTypes:UIUserNotificationTypeAlert | UIUserNotificationTypeSound | UIUserNotificationTypeBadge categories:nil]];
+            }
+            [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusDenied];
+        }
+            break;
+        case UIUserNotificationTypeBadge:
+        case UIUserNotificationTypeSound:
+        case UIUserNotificationTypeAlert:
+        {
+            [self completionWithAuthorized:YES authorizationStatus:LTPrivacyPermissionAuthorizationStatusAuthorized];
+        }
+            break;
+        default:
+            break;
+    }
+#pragma clang diagnostic pop
+#endif
+}
+
+- (void)SpeechAuthorizationWhetherAccessAuthorization:(BOOL)access
+{
+    if (access)
+    {
+#ifdef LTLTPrivacyPermissionSpeechAvailable
+        if (@available(iOS 10.0, *)) {
+            [SFSpeechRecognizer requestAuthorization:^(SFSpeechRecognizerAuthorizationStatus status) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    switch (status)
+                    {
+                        case SFSpeechRecognizerAuthorizationStatusDenied:
+                            [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusDenied];
+                            break;
+                            
+                        case SFSpeechRecognizerAuthorizationStatusNotDetermined:
+                            [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusNotDetermined];
+                            break;
+                            
+                        case SFSpeechRecognizerAuthorizationStatusRestricted:
+                            [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusRestricted];
+                            break;
+                            
+                        case SFSpeechRecognizerAuthorizationStatusAuthorized:
+                            [self completionWithAuthorized:YES authorizationStatus:LTPrivacyPermissionAuthorizationStatusAuthorized];
+                            break;
+                    }
+                });
+            }];
+        }
+#elif
+        [self completionWithAuthorized:self.isServicesDisabledAuthorize authorizationStatus:LTPrivacyPermissionAuthorizationStatusServicesDisabled];
+#endif
+
+    }
+    else
+    {
+#ifdef LTLTPrivacyPermissionSpeechAvailable
+        if (@available(iOS 10.0, *))
+        {
+            SFSpeechRecognizerAuthorizationStatus status = [SFSpeechRecognizer authorizationStatus];
+            switch (status)
+            {
+                case SFSpeechRecognizerAuthorizationStatusDenied:
+                    [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusDenied];
+                    break;
+                    
+                case SFSpeechRecognizerAuthorizationStatusNotDetermined:
+                    [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusNotDetermined];
+                    break;
+                    
+                case SFSpeechRecognizerAuthorizationStatusRestricted:
+                    [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusRestricted];
+                    break;
+                    
+                case SFSpeechRecognizerAuthorizationStatusAuthorized:
+                    [self completionWithAuthorized:YES authorizationStatus:LTPrivacyPermissionAuthorizationStatusAuthorized];
+                    break;
+            }
+        }
+#elif
+        [self completionWithAuthorized:self.isServicesDisabledAuthorize authorizationStatus:LTPrivacyPermissionAuthorizationStatusServicesDisabled];
+#endif
+
+    }
+}
+
+- (void)ContactAuthorizationWhetherAccessAuthorization:(BOOL)access
+{
+#ifdef  LTLTPrivacyPermissionContactAvailable
+    if (@available(iOS 9.0, *))
+    {
+        CNAuthorizationStatus status = [CNContactStore authorizationStatusForEntityType:CNEntityTypeContacts];
+        switch (status)
+        {
+            case CNAuthorizationStatusAuthorized:
+                [self completionWithAuthorized:YES authorizationStatus:LTPrivacyPermissionAuthorizationStatusAuthorized];
+                break;
+                
+            case CNAuthorizationStatusDenied:
+                [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusDenied];
+                break;
+                
+            case CNAuthorizationStatusRestricted:
+                [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusRestricted];
+                break;
+                
+            case CNAuthorizationStatusNotDetermined:
+            {
+                if (access)
+                {
+                    [[CNContactStore new] requestAccessForEntityType:CNEntityTypeContacts completionHandler:^(BOOL granted, NSError * _Nullable error) {
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [self completionWithAuthorized:granted authorizationStatus:granted ? LTPrivacyPermissionAuthorizationStatusAuthorized : LTPrivacyPermissionAuthorizationStatusDenied];
+                        });
+                    }];
+                }
+                else
+                {
+                    [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusNotDetermined];
+                }
+            }
+                break;
+        }
+    }
+#elif
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored"-Wdeprecated-declarations"
+    ABAuthorizationStatus status = ABAddressBookGetAuthorizationStatus();
+    switch (status)
+    {
+        case kABAuthorizationStatusAuthorized:
+        {
+            [self completionWithAuthorized:YES authorizationStatus:LTPrivacyPermissionAuthorizationStatusAuthorized];
+        }
+            break;
+            
+        case kABAuthorizationStatusNotDetermined:
+        {
+            if (access)
+            {
+                ABAddressBookRef addressBook = ABAddressBookCreateWithOptions(NULL, NULL);
+                ABAddressBookRequestAccessWithCompletion(addressBook, ^(bool granted, CFErrorRef error) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [self completionWithAuthorized:granted authorizationStatus:granted ? LTPrivacyPermissionAuthorizationStatusAuthorized : LTPrivacyPermissionAuthorizationStatusDenied];
+                    });
+                });
+            }
+            else
+            {
+                [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusNotDetermined];
+            }
+        }
+            break;
+            
+        case kABAuthorizationStatusRestricted:
+        {
+            [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusRestricted];
+        }
+            break;
+            
+        case kABAuthorizationStatusDenied:
+        {
+            [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusDenied];
+        }
+            break;
+    }
+#pragma clang diagnostic pop
+#endif
+}
+
+- (void)EKEventStoreAuthorizationStatusForEntityType:(EKEntityType)type shouldAccessAuthorization:(BOOL)access
+{
+    if (access)
+    {
+        EKEventStore *eventStore = [[EKEventStore alloc] init];
+        [eventStore requestAccessToEntityType:type completion:^(BOOL granted, NSError * _Nullable error) {
+            EKAuthorizationStatus status = [EKEventStore  authorizationStatusForEntityType:EKEntityTypeEvent];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                switch (status)
+                {
+                    case EKAuthorizationStatusNotDetermined:
+                        [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusNotDetermined];
+                        break;
+                        
+                    case EKAuthorizationStatusRestricted:
+                        [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusRestricted];
+                        break;
+                        
+                    case EKAuthorizationStatusDenied:
+                        [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusDenied];
+                        break;
+                        
+                    case EKAuthorizationStatusAuthorized:
+                        [self completionWithAuthorized:YES authorizationStatus:LTPrivacyPermissionAuthorizationStatusAuthorized];
+                        break;
+                }
+            });
+        }];
+    }
+    else
+    {
+        EKAuthorizationStatus status = [EKEventStore authorizationStatusForEntityType:type];
+        switch (status)
+        {
+            case EKAuthorizationStatusNotDetermined:
+                [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusNotDetermined];
+                break;
+                
+            case EKAuthorizationStatusRestricted:
+                [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusRestricted];
+                break;
+                
+            case EKAuthorizationStatusDenied:
+                [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusDenied];
+                break;
+                
+            case EKAuthorizationStatusAuthorized:
+                [self completionWithAuthorized:YES authorizationStatus:LTPrivacyPermissionAuthorizationStatusAuthorized];
+                break;
+        }
+    }
+}
+
+- (void)NetworkAuthorizationWhetherAccessAuthorization:(BOOL)access
+{
+#ifdef LTLTPrivacyPermissionCoreTelephonyAvailable
+    CTCellularData *cellularData = [[CTCellularData alloc] init];
+    CTCellularDataRestrictedState status = cellularData.restrictedState;
+    
+    switch (status)
+    {
+        case kCTCellularDataNotRestricted:
+        {
+            //没有限制
+            [self completionWithAuthorized:YES authorizationStatus:LTPrivacyPermissionAuthorizationStatusAuthorized];
+        }
+            break;
+            
+        case kCTCellularDataRestricted:
+        {
+            //限制
+            [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusDenied];
+        }
+            break;
+            
+        case kCTCellularDataRestrictedStateUnknown:
+        {
+            if (access)
+            {
+                [cellularData setCellularDataRestrictionDidUpdateNotifier:^(CTCellularDataRestrictedState newState) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        switch (newState)
+                        {
+                            case kCTCellularDataNotRestricted:
+                            {
+                                //没有限制
+                                [self completionWithAuthorized:YES authorizationStatus:LTPrivacyPermissionAuthorizationStatusAuthorized];
+                            }
+                                break;
+                                
+                            case kCTCellularDataRestricted:
+                            {
+                                //限制
+                                [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusRestricted];
+                            }
+                                break;
+                                
+                            case kCTCellularDataRestrictedStateUnknown:
+                            {
+                                [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusUnkonwn];
+                            }
+                                break;
+                        }
+                    });
+                }];
+            }
+            else
+            {
+                [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusNotDetermined];
+            }
+        }
+            break;
+    }
+#elif
+    [self completionWithAuthorized:self.isServicesDisabledAuthorize authorizationStatus:LTPrivacyPermissionAuthorizationStatusServicesDisabled];
+#endif
+}
+
+#pragma mark - 系统设置
 + (void)showOpenApplicationSettingsAlertWithTitle:(NSString *)title
                                           message:(NSString *)message
                                 cancelActionTitle:(NSString *)cancelActionTitle
@@ -606,11 +806,6 @@
 #pragma mark - CLLocationManagerDelegate
 - (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status
 {
-    if (!self.locationCompletion)
-    {
-        return;
-    }
-    
     switch (status)
     {
         case kCLAuthorizationStatusNotDetermined:
@@ -619,29 +814,25 @@
             
         case kCLAuthorizationStatusAuthorizedWhenInUse:
         {
-            self.locationCompletion(YES, LTPrivacyPermissionAuthorizationStatusLocationWhenInUse);
-            self.locationCompletion = nil;
+            [self completionWithAuthorized:YES authorizationStatus:LTPrivacyPermissionAuthorizationStatusLocationWhenInUse];
         }
             break;
             
         case kCLAuthorizationStatusAuthorizedAlways:
         {
-            self.locationCompletion(YES, LTPrivacyPermissionAuthorizationStatusLocationAlways);
-            self.locationCompletion = nil;
+            [self completionWithAuthorized:YES authorizationStatus:LTPrivacyPermissionAuthorizationStatusLocationAlways];
         }
             break;
             
         case kCLAuthorizationStatusDenied:
         {
-            self.locationCompletion(NO, LTPrivacyPermissionAuthorizationStatusDenied);
-            self.locationCompletion = nil;
+            [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusDenied];
         }
             break;
             
         case kCLAuthorizationStatusRestricted:
         {
-            self.locationCompletion(NO, LTPrivacyPermissionAuthorizationStatusRestricted);
-            self.locationCompletion = nil;
+            [self completionWithAuthorized:NO authorizationStatus:LTPrivacyPermissionAuthorizationStatusRestricted];
         }
             break;
     }
