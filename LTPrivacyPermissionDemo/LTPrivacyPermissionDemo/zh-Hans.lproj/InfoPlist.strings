@@ -18,4 +18,4 @@ NSLocationWhenInUseUsageDescription = "需要你的同意,才能在使用期间�
 NSSpeechRecognitionUsageDescription = "需要你的同意,才能访问语音识别";
 NSCalendarsUsageDescription = "需要你的同意,才能访问日历";
 NSContactsUsageDescription = "需要你的同意,才能访问通讯录";
-NSRemindersUsageDescription = "需要你的同意,才能访问备忘录";
+NSRemindersUsageDescription = "需要你的同意,才能访问提醒事项";

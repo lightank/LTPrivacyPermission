@@ -13,31 +13,31 @@ typedef NS_ENUM(NSUInteger, LTPrivacyPermissionType)
 {
     // Privacy - Photo Library Usage Description : NSPhotoLibraryUsageDescription
     // Privacy - Photo Library Additions Usage Description (after iOS 11) : NSPhotoLibraryAddUsageDescription
-    LTPrivacyPermissionTypePhoto = 0,
+    LTPrivacyPermissionTypePhoto = 0,   // 相册
     // Privacy - Camera Usage Description : NSCameraUsageDescription
-    LTPrivacyPermissionTypeCamera,
+    LTPrivacyPermissionTypeCamera,  // 相机
     // Privacy - Media Library Usage Description : NSAppleMusicUsageDescription
-    LTPrivacyPermissionTypeMediaLibrary,
+    LTPrivacyPermissionTypeMediaLibrary,    // 媒体资源库
     // Privacy - Microphone Usage Description : NSMicrophoneUsageDescription
-    LTPrivacyPermissionTypeMicrophone,
+    LTPrivacyPermissionTypeMicrophone,  // 麦克风
     // Privacy - Location Always and When In Use Usage Description : NSLocationAlwaysAndWhenInUseUsageDescription
-    LTPrivacyPermissionTypeLocationAlwaysAndWhenInUse,
+    LTPrivacyPermissionTypeLocationAlwaysAndWhenInUse,  // 使用期间/始终访问地理位置
     // Privacy - Location Always Usage Description : NSLocationAlwaysUsageDescription
-    LTPrivacyPermissionTypeLocationAlways,
+    LTPrivacyPermissionTypeLocationAlways,  // 始终访问地理位置
     // Privacy - Location When In Use Usage Description : NSLocationWhenInUseUsageDescription
-    LTPrivacyPermissionTypeLocationWhenInUse,
+    LTPrivacyPermissionTypeLocationWhenInUse,   // 使用期间访问地理位置
     // 在iOS 10 以下,由于无法取得回调,故回调 |status| 返回 |Unkonwn|, |authorized| 返回 NO
-    LTPrivacyPermissionTypePushNotification,
+    LTPrivacyPermissionTypePushNotification,    // 推送
     // Privacy - Speech Recognition Usage Description : NSSpeechRecognitionUsageDescription
-    LTPrivacyPermissionTypeSpeech,
+    LTPrivacyPermissionTypeSpeech,  // 语音识别
     // Privacy - Calendars Usage Description : NSCalendarsUsageDescription
-    LTPrivacyPermissionTypeCalendar,
+    LTPrivacyPermissionTypeCalendar,    // 日历
     // Privacy - Contacts Usage Description : NSContactsUsageDescription
-    LTPrivacyPermissionTypeContact,
+    LTPrivacyPermissionTypeContact, // 通讯录
     // Privacy - Reminders Usage Description : NSRemindersUsageDescription
-    LTPrivacyPermissionTypeReminder,
+    LTPrivacyPermissionTypeReminder,    // 提醒事项
     // For China
-    LTPrivacyPermissionTypeNetwork,
+    LTPrivacyPermissionTypeNetwork, // 网络
 };
 
 typedef NS_ENUM(NSInteger, LTPrivacyPermissionAuthorizationStatus)
@@ -53,7 +53,7 @@ typedef NS_ENUM(NSInteger, LTPrivacyPermissionAuthorizationStatus)
     LTPrivacyPermissionAuthorizationStatusServicesDisabled,
 };
 
-typedef void(^LTPrivacyPermissionCompletionBlock)(BOOL authorized, LTPrivacyPermissionAuthorizationStatus status);
+typedef void(^LTPrivacyPermissionCompletionBlock)(BOOL authorized, LTPrivacyPermissionType type, LTPrivacyPermissionAuthorizationStatus status);
 
 @interface LTPrivacyPermission : NSObject
 
