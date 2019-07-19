@@ -59,6 +59,8 @@
 
 #endif
 
+//#define LT_Permission_Photo
+
 @interface LTPrivacyPermission () <CLLocationManagerDelegate>
 
 /**  定位  */
@@ -95,57 +97,88 @@
 {
     switch (type)
     {
+#ifdef LT_Permission_Photo
         case LTPrivacyPermissionTypePhoto:
             [self PhotoAuthorizationWhetherAccessAuthorization:access completion:completion];
             break;
-            
+#endif
+
+#ifdef LT_Permission_Camera
         case LTPrivacyPermissionTypeCamera:
             [self AVCaptureDeviceAuthorizationStatusForMediaType:AVMediaTypeVideo shouldAccessAuthorization:access completion:completion];
             break;
-            
+#endif
+
+#ifdef LT_Permission_MediaLibrary
         case LTPrivacyPermissionTypeMediaLibrary:
             [self MediaLibraryAuthorizationWhetherAccessAuthorization:access completion:completion];
             break;
-            
+#endif
+
+#ifdef LT_Permission_Microphone
         case LTPrivacyPermissionTypeMicrophone:
             [self AVCaptureDeviceAuthorizationStatusForMediaType:AVMediaTypeAudio shouldAccessAuthorization:access completion:completion];
             break;
-            
+#endif
+
+#ifdef LT_Permission_Location_Always
         case LTPrivacyPermissionTypeLocationAlways:
             [self LocationAuthorizationStatusForMediaType:LTPrivacyPermissionTypeLocationAlways shouldAccessAuthorization:access completion:completion];
             break;
-            
+#endif
+
+#ifdef LT_Permission_Location_WhenInUse
         case LTPrivacyPermissionTypeLocationWhenInUse:
             [self LocationAuthorizationStatusForMediaType:LTPrivacyPermissionTypeLocationWhenInUse shouldAccessAuthorization:access completion:completion];
             break;
-            
+#endif
+
+#ifdef LT_Permission_Location_AlwaysAndWhenInUse
         case LTPrivacyPermissionTypeLocationAlwaysAndWhenInUse:
             [self LocationAuthorizationStatusForMediaType:LTPrivacyPermissionTypeLocationWhenInUse shouldAccessAuthorization:access completion:completion];
             break;
-            
+#endif
+
+#ifdef LT_Permission_PushNotification
         case LTPrivacyPermissionTypePushNotification:
             [self PushNotificationAuthorizationWhetherAccessAuthorization:access completion:completion];
             break;
-            
+#endif
+
+#ifdef LT_Permission_Speech
         case LTPrivacyPermissionTypeSpeech:
             [self SpeechAuthorizationWhetherAccessAuthorization:access completion:completion];
             break;
-            
+#endif
+
+#ifdef LT_Permission_Calendar
         case LTPrivacyPermissionTypeCalendar:
             [self EKEventStoreAuthorizationStatusForEntityType:EKEntityTypeEvent shouldAccessAuthorization:access completion:completion];
             break;
-       
+#endif
+
+#ifdef LT_Permission_Reminder
         case LTPrivacyPermissionTypeReminder:
             [self EKEventStoreAuthorizationStatusForEntityType:EKEntityTypeReminder shouldAccessAuthorization:access completion:completion];
             break;
-            
+#endif
+
+#ifdef LT_Permission_Contact
         case LTPrivacyPermissionTypeContact:
             [self ContactAuthorizationWhetherAccessAuthorization:access completion:completion];
             break;
-        
-            
+#endif
+
+#ifdef LT_Permission_Network
         case LTPrivacyPermissionTypeNetwork:
             [self NetworkAuthorizationWhetherAccessAuthorization:access completion:completion];
+            break;
+#endif
+
+        case LTPrivacyPermissionTypeUnknown:
+            break;
+
+        default:
             break;
     }
 }
@@ -181,7 +214,7 @@
 }
 
 #pragma mark - 单个授权
-
+#ifdef LT_Permission_Photo
 - (void)PhotoAuthorizationWhetherAccessAuthorization:(BOOL)access completion:(LTPrivacyPermissionCompletionBlock)completion
 {
     LTPrivacyPermissionType permissionType = LTPrivacyPermissionTypePhoto;
@@ -233,7 +266,10 @@
         }
     }
 }
+#endif
 
+
+#if defined(LT_Permission_Camera) || defined(LT_Permission_Microphone)
 - (void)AVCaptureDeviceAuthorizationStatusForMediaType:(AVMediaType)mediaType shouldAccessAuthorization:(BOOL)access completion:(LTPrivacyPermissionCompletionBlock)completion
 {
     if (!(mediaType == AVMediaTypeVideo || mediaType == AVMediaTypeAudio))
@@ -242,8 +278,12 @@
     }
     
     LTPrivacyPermissionType permissionType = LTPrivacyPermissionTypeCamera;
+    #ifdef LT_Permission_Camera
     if (mediaType == AVMediaTypeVideo) permissionType = LTPrivacyPermissionTypeCamera;
+    #endif
+    #ifdef LT_Permission_Microphone
     if (mediaType == AVMediaTypeAudio) permissionType = LTPrivacyPermissionTypeMicrophone;
+    #endif
     if (access)
     {
         [AVCaptureDevice requestAccessForMediaType:mediaType completionHandler:^(BOOL granted) {
@@ -293,7 +333,9 @@
         }
     }
 }
+#endif
 
+#ifdef LT_Permission_MediaLibrary
 - (void)MediaLibraryAuthorizationWhetherAccessAuthorization:(BOOL)access completion:(LTPrivacyPermissionCompletionBlock)completion
 {
     LTPrivacyPermissionType permissionType = LTPrivacyPermissionTypeMediaLibrary;
@@ -358,10 +400,30 @@
 #endif
     }
 }
+#endif
+
 
 - (void)LocationAuthorizationStatusForMediaType:(LTPrivacyPermissionType)type shouldAccessAuthorization:(BOOL)access completion:(LTPrivacyPermissionCompletionBlock)completion
 {
-    BOOL isLocation = (type == LTPrivacyPermissionTypeLocationAlways || type == LTPrivacyPermissionTypeLocationWhenInUse || type == LTPrivacyPermissionTypeLocationAlwaysAndWhenInUse);
+    BOOL isLocation = NO;
+    
+    BOOL isLocationAlways = NO;
+    BOOL isLocationWhenInUse = NO;
+    BOOL isLocationAlwaysAndWhenInUse = NO;
+    
+#ifdef LT_Permission_Location_Always
+    isLocationAlways = (type == LTPrivacyPermissionTypeLocationAlways);
+#endif
+    
+#ifdef LT_Permission_Location_WhenInUse
+    isLocationWhenInUse = (type == LTPrivacyPermissionTypeLocationWhenInUse);
+#endif
+    
+#ifdef LT_Permission_Location_AlwaysAndWhenInUse
+    isLocationAlwaysAndWhenInUse = (type == LTPrivacyPermissionTypeLocationAlwaysAndWhenInUse);
+#endif
+    
+    isLocation = isLocationAlways || isLocationWhenInUse || isLocationAlwaysAndWhenInUse;
     if (!isLocation)
     {
         return;
@@ -384,24 +446,30 @@
                 self.locationType = type;
                 switch (type)
                 {
+#ifdef LT_Permission_Location_Always
                     case LTPrivacyPermissionTypeLocationAlways:
                     {
                         [self.locationManager requestAlwaysAuthorization];
                     }
                         break;
+#endif
                         
+#ifdef LT_Permission_Location_WhenInUse
                     case LTPrivacyPermissionTypeLocationWhenInUse:
                     {
                         [self.locationManager requestWhenInUseAuthorization];
                     }
                         break;
-                        
+#endif
+
+#ifdef LT_Permission_Location_AlwaysAndWhenInUse
                     case LTPrivacyPermissionTypeLocationAlwaysAndWhenInUse:
                     {
                         [self.locationManager requestAlwaysAuthorization];
                         [self.locationManager requestWhenInUseAuthorization];
                     }
                         break;
+#endif
                         
                     default:
                         break;
@@ -432,6 +500,7 @@
     }
 }
 
+#ifdef LT_Permission_PushNotification
 - (void)PushNotificationAuthorizationWhetherAccessAuthorization:(BOOL)access completion:(LTPrivacyPermissionCompletionBlock)completion
 {
     LTPrivacyPermissionType permissionType = LTPrivacyPermissionTypePushNotification;
@@ -507,7 +576,9 @@
 #pragma clang diagnostic pop
 #endif
 }
+#endif
 
+#ifdef LT_Permission_Speech
 - (void)SpeechAuthorizationWhetherAccessAuthorization:(BOOL)access completion:(LTPrivacyPermissionCompletionBlock)completion
 {
     LTPrivacyPermissionType permissionType = LTPrivacyPermissionTypeSpeech;
@@ -574,7 +645,9 @@
 
     }
 }
+#endif
 
+#ifdef LT_Permission_Contact
 - (void)ContactAuthorizationWhetherAccessAuthorization:(BOOL)access completion:(LTPrivacyPermissionCompletionBlock)completion
 {
     LTPrivacyPermissionType permissionType = LTPrivacyPermissionTypeContact;
@@ -659,18 +732,26 @@
 #pragma clang diagnostic pop
 #endif
 }
+#endif
 
+#if defined(LT_Permission_Calendar) || defined(LT_Permission_Reminder)
 - (void)EKEventStoreAuthorizationStatusForEntityType:(EKEntityType)type shouldAccessAuthorization:(BOOL)access completion:(LTPrivacyPermissionCompletionBlock)completion
 {
-    LTPrivacyPermissionType permissionType = LTPrivacyPermissionTypeReminder;
+    LTPrivacyPermissionType permissionType = LTPrivacyPermissionTypeUnknown;
     switch (type)
     {
+#ifdef LT_Permission_Calendar
         case EKEntityTypeEvent:
             permissionType = LTPrivacyPermissionTypeCalendar;
             break;
+#endif
             
+#ifdef LT_Permission_Reminder
         case EKEntityTypeReminder:
             permissionType = LTPrivacyPermissionTypeReminder;
+            break;
+#endif
+        default:
             break;
     }
 
@@ -722,7 +803,9 @@
         }
     }
 }
+#endif
 
+#ifdef LT_Permission_Network
 - (void)NetworkAuthorizationWhetherAccessAuthorization:(BOOL)access completion:(LTPrivacyPermissionCompletionBlock)completion
 {
     LTPrivacyPermissionType permissionType = LTPrivacyPermissionTypeNetwork;
@@ -788,6 +871,7 @@
     [self completionWithAuthorized:self.isServicesDisabledAuthorize permissionType:permissionType authorizationStatus:LTPrivacyPermissionAuthorizationStatusServicesDisabled completion:completion];
 #endif
 }
+#endif
 
 #pragma mark - 系统设置
 + (void)showOpenApplicationSettingsAlertWithTitle:(NSString *)title
@@ -829,6 +913,7 @@
 }
 
 #pragma mark - CLLocationManagerDelegate
+#if defined(LT_Permission_Location_Always) || defined(LT_Permission_Location_WhenInUse) || defined(LT_Permission_Location_AlwaysAndWhenInUse)
 - (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status
 {
     switch (status)
@@ -862,6 +947,7 @@
             break;
     }
 }
+#endif
 
 #pragma mark - setter and getter
 - (CLLocationManager *)locationManager

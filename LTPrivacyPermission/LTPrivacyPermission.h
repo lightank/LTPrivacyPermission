@@ -8,36 +8,103 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#if __has_include("LTPrivacyPermission.h")
+#import "LTPrivacyPermission.h"
+#endif
+
+/*
+ 
+ 由于某个版本后,写了申请权限的代码,但是没有在 /Info.plist/ 中配置相应的key,会导致提交审核的二进制被拒,被拒示例信息如下:
+ 
+ This app attempts to access privacy-sensitive data without a usage description. The app's Info.plist must contain an NSPhotoLibraryUsageDescription key with a string value explaining to the user how the app uses this data.
+ 
+ 所以此库采用宏来条件编译,由于支持 /cocoapods/,所以可能不能修改.h文件,估建议在pch文件里定义下面的宏定义,需要哪一个权限就选用哪一个宏,或者自建一个 /LTPrivacyPermission.h/ 在这.h文件中定义所需宏
+ 
+ #define LT_Permission_Photo    //0, 相册
+ #define LT_Permission_Camera   //1, 相机
+ #define LT_Permission_Microphone //2, 麦克风
+ #define LT_Permission_Location_WhenInUse   //3, 使用期间访问地理位置
+ #define LT_Permission_Location_Always  //4, 始终访问地理位置
+ #define LT_Permission_Location_AlwaysAndWhenInUse  //5, 使用期间/始终访问地理位置
+ #define LT_Permission_Contact   //6, 通讯录
+ #define LT_Permission_PushNotification //7, 推送
+ #define LT_Permission_MediaLibrary //8, 媒体资源库
+ #define LT_Permission_Speech   //9, 语音识别
+ #define LT_Permission_Calendar //10, 日历
+ #define LT_Permission_Reminder  //11, 提醒事项
+ #define LT_Permission_Network //12, 网络
+ 
+ */
 
 typedef NS_ENUM(NSUInteger, LTPrivacyPermissionType)
 {
+#ifdef LT_Permission_Photo
     // Privacy - Photo Library Usage Description : NSPhotoLibraryUsageDescription
     // Privacy - Photo Library Additions Usage Description (after iOS 11) : NSPhotoLibraryAddUsageDescription
     LTPrivacyPermissionTypePhoto = 0,   // 相册
+#endif
+    
+#ifdef LT_Permission_Camera
     // Privacy - Camera Usage Description : NSCameraUsageDescription
-    LTPrivacyPermissionTypeCamera,  // 相机
-    // Privacy - Media Library Usage Description : NSAppleMusicUsageDescription
-    LTPrivacyPermissionTypeMediaLibrary,    // 媒体资源库
+    LTPrivacyPermissionTypeCamera = 1,  // 相机
+#endif
+    
+#ifdef LT_Permission_Microphone
     // Privacy - Microphone Usage Description : NSMicrophoneUsageDescription
-    LTPrivacyPermissionTypeMicrophone,  // 麦克风
-    // Privacy - Location Always and When In Use Usage Description : NSLocationAlwaysAndWhenInUseUsageDescription
-    LTPrivacyPermissionTypeLocationAlwaysAndWhenInUse,  // 使用期间/始终访问地理位置
-    // Privacy - Location Always Usage Description : NSLocationAlwaysUsageDescription
-    LTPrivacyPermissionTypeLocationAlways,  // 始终访问地理位置
+    LTPrivacyPermissionTypeMicrophone = 2,  // 麦克风
+#endif
+    
+#ifdef LT_Permission_Location_WhenInUse
     // Privacy - Location When In Use Usage Description : NSLocationWhenInUseUsageDescription
-    LTPrivacyPermissionTypeLocationWhenInUse,   // 使用期间访问地理位置
-    // 在iOS 10 以下,由于无法取得回调,故回调 |status| 返回 |Unkonwn|, |authorized| 返回 NO
-    LTPrivacyPermissionTypePushNotification,    // 推送
-    // Privacy - Speech Recognition Usage Description : NSSpeechRecognitionUsageDescription
-    LTPrivacyPermissionTypeSpeech,  // 语音识别
-    // Privacy - Calendars Usage Description : NSCalendarsUsageDescription
-    LTPrivacyPermissionTypeCalendar,    // 日历
+    LTPrivacyPermissionTypeLocationWhenInUse = 3,   // 使用期间访问地理位置
+#endif
+    
+#ifdef LT_Permission_Location_Always
+    // Privacy - Location Always Usage Description : NSLocationAlwaysUsageDescription
+    LTPrivacyPermissionTypeLocationAlways = 4,  // 始终访问地理位置
+#endif
+    
+#ifdef LT_Permission_Location_AlwaysAndWhenInUse
+    // Privacy - Location Always and When In Use Usage Description : NSLocationAlwaysAndWhenInUseUsageDescription
+    LTPrivacyPermissionTypeLocationAlwaysAndWhenInUse = 5,  // 使用期间/始终访问地理位置
+#endif
+    
+#ifdef LT_Permission_Contact
     // Privacy - Contacts Usage Description : NSContactsUsageDescription
-    LTPrivacyPermissionTypeContact, // 通讯录
+    LTPrivacyPermissionTypeContact = 6, // 通讯录
+#endif
+    
+#ifdef LT_Permission_PushNotification
+    // 在iOS 10 以下,由于无法取得回调,故回调 |status| 返回 |Unkonwn|, |authorized| 返回 NO
+    LTPrivacyPermissionTypePushNotification = 7,    // 推送
+#endif
+    
+#ifdef LT_Permission_MediaLibrary
+    // Privacy - Media Library Usage Description : NSAppleMusicUsageDescription
+    LTPrivacyPermissionTypeMediaLibrary = 8,    // 媒体资源库
+#endif
+    
+#ifdef LT_Permission_Speech
+    // Privacy - Speech Recognition Usage Description : NSSpeechRecognitionUsageDescription
+    LTPrivacyPermissionTypeSpeech = 9,  // 语音识别
+#endif
+    
+#ifdef LT_Permission_Calendar
+    // Privacy - Calendars Usage Description : NSCalendarsUsageDescription
+    LTPrivacyPermissionTypeCalendar = 10,    // 日历
+#endif
+    
+#ifdef LT_Permission_Reminder
     // Privacy - Reminders Usage Description : NSRemindersUsageDescription
-    LTPrivacyPermissionTypeReminder,    // 提醒事项
+    LTPrivacyPermissionTypeReminder = 11,    // 提醒事项
+#endif
+    
+#ifdef LT_Permission_Network
     // For China
-    LTPrivacyPermissionTypeNetwork, // 网络
+    LTPrivacyPermissionTypeNetwork = 12, // 网络
+#endif
+    // For null enum
+    LTPrivacyPermissionTypeUnknown = 13, // 未知
 };
 
 typedef NS_ENUM(NSInteger, LTPrivacyPermissionAuthorizationStatus)

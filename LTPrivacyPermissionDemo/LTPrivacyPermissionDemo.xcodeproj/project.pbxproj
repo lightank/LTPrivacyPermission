@@ -37,6 +37,7 @@
 		3DB0BBC0214225A600EA1B6E /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
 		3DB0BBC1214225A600EA1B6E /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		3DB0BBC2214225A600EA1B6E /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		A071249822E1C3D800C91E89 /* PrefixHeader.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PrefixHeader.pch; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -74,6 +75,7 @@
 				3DB0BB9A214222E600EA1B6E /* AppDelegate.m */,
 				3DB0BB9C214222E600EA1B6E /* ViewController.h */,
 				3DB0BB9D214222E600EA1B6E /* ViewController.m */,
+				A071249822E1C3D800C91E89 /* PrefixHeader.pch */,
 				3DB0BB9F214222E600EA1B6E /* Main.storyboard */,
 				3DB0BBA2214222E700EA1B6E /* Assets.xcassets */,
 				3DB0BBA4214222E700EA1B6E /* LaunchScreen.storyboard */,
@@ -168,9 +170,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3DB0BB9E214222E600EA1B6E /* ViewController.m in Sources */,
 				3DB0BBA9214222E700EA1B6E /* main.m in Sources */,
 				3DB0BB9B214222E600EA1B6E /* AppDelegate.m in Sources */,
+				3DB0BB9E214222E600EA1B6E /* ViewController.m in Sources */,
 				3DB0BBB42142246900EA1B6E /* LTPrivacyPermission.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -334,14 +336,15 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 92CYHZVC4M;
+				DEVELOPMENT_TEAM = WWJ7XS3PG2;
+				GCC_PREFIX_HEADER = "$(SRCROOT)/LTPrivacyPermissionDemo/PrefixHeader.pch";
 				INFOPLIST_FILE = LTPrivacyPermissionDemo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = lightank.LTPrivacyPermissionDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = lightank.LTPrivacyPermissionDemo.testDD;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -352,14 +355,15 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 92CYHZVC4M;
+				DEVELOPMENT_TEAM = WWJ7XS3PG2;
+				GCC_PREFIX_HEADER = "$(SRCROOT)/LTPrivacyPermissionDemo/PrefixHeader.pch";
 				INFOPLIST_FILE = LTPrivacyPermissionDemo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = lightank.LTPrivacyPermissionDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = lightank.LTPrivacyPermissionDemo.testDD;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = 1;
 			};

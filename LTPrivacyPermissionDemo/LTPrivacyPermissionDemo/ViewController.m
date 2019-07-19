@@ -7,6 +7,7 @@
 //
 
 #import "ViewController.h"
+
 #import "LTPrivacyPermission.h"
 
 @interface ViewController () <UITableViewDelegate, UITableViewDataSource>
@@ -30,15 +31,15 @@
     _titleArray = @[
                     NSLocalizedString(@"Permission.Photo", nil),
                     NSLocalizedString(@"Permission.Camera", nil),
-                    NSLocalizedString(@"Permission.AppleMusic", nil),
                     NSLocalizedString(@"Permission.Microphone", nil),
-                    NSLocalizedString(@"Permission.LocationAlwaysAndWhenInUse", nil),
-                    NSLocalizedString(@"Permission.LocationAlways", nil),
                     NSLocalizedString(@"Permission.LocationWhenInUse", nil),
+                    NSLocalizedString(@"Permission.LocationAlways", nil),
+                    NSLocalizedString(@"Permission.LocationAlwaysAndWhenInUse", nil),
+                    NSLocalizedString(@"Permission.Contacts", nil),
                     NSLocalizedString(@"Permission.PushNotification", nil),
+                    NSLocalizedString(@"Permission.AppleMusic", nil),
                     NSLocalizedString(@"Permission.Speech", nil),
                     NSLocalizedString(@"Permission.CalendarEvent", nil),
-                    NSLocalizedString(@"Permission.Contacts", nil),
                     NSLocalizedString(@"Permission.Reminder", nil),
                     NSLocalizedString(@"Permission.Network", nil),
                     ];
@@ -96,7 +97,8 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     // 获取权限
-    [LTPrivacyPermission.sharedPermission accessPrivacyPermissionWithType:indexPath.row completion:^(BOOL authorized, LTPrivacyPermissionType type, LTPrivacyPermissionAuthorizationStatus status) {
+    LTPrivacyPermissionType type = indexPath.row;
+    [LTPrivacyPermission.sharedPermission accessPrivacyPermissionWithType:type completion:^(BOOL authorized, LTPrivacyPermissionType type, LTPrivacyPermissionAuthorizationStatus status) {
         if (!authorized)
         {
             [LTPrivacyPermission showOpenApplicationSettingsAlertWithTitle:NSLocalizedString(@"Permission.ErrorTitle", nil) message:NSLocalizedString(@"Permission.ErrorTitleInfo", nil) cancelActionTitle:NSLocalizedString(@"Permission.ErrorCancel", nil) settingActionTitle:NSLocalizedString(@"Permission.ErrorOpenSetting", nil)];

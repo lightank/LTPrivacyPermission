@@ -1,0 +1,29 @@
+//
+//  PrefixHeader.pch
+//  LTPrivacyPermissionDemo
+//
+//  Created by 李桓宇 on 2019/7/19.
+//  Copyright © 2019 lightank. All rights reserved.
+//
+
+#ifndef PrefixHeader_pch
+#define PrefixHeader_pch
+
+// Include any system framework and library headers here that should be included in all compilation units.
+// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+
+#define LT_Permission_Photo    //0, 相册
+#define LT_Permission_Camera   //1, 相机
+#define LT_Permission_Microphone //2, 麦克风
+#define LT_Permission_Location_WhenInUse   //3, 使用期间访问地理位置
+#define LT_Permission_Location_Always  //4, 始终访问地理位置
+#define LT_Permission_Location_AlwaysAndWhenInUse  //5, 使用期间/始终访问地理位置
+#define LT_Permission_Contact   //6, 通讯录
+#define LT_Permission_PushNotification //7, 推送
+#define LT_Permission_MediaLibrary //8, 媒体资源库
+#define LT_Permission_Speech   //9, 语音识别
+#define LT_Permission_Calendar //10, 日历
+#define LT_Permission_Reminder  //11, 提醒事项
+#define LT_Permission_Network //12, 网络
+
+#endif /* PrefixHeader_pch */
