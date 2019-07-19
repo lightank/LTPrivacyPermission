@@ -247,7 +247,7 @@
     if (access)
     {
         [AVCaptureDevice requestAccessForMediaType:mediaType completionHandler:^(BOOL granted) {
-            AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+            AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:mediaType];
             dispatch_async(dispatch_get_main_queue(), ^{
                 switch (status)
                 {
