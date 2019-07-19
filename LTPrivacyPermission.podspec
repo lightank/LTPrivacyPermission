@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   #
 
   s.name         = "LTPrivacyPermission"
-  s.version      = "0.0.4"
+  s.version      = "0.0.5"
   s.summary      = "LTPrivacyPermission is a library for accessing/check various system privacy permissions"
 
   # This description is used to generate tags and improve search results.
