@@ -8,8 +8,8 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#if __has_include("LTPrivacyPermission.h")
-#import "LTPrivacyPermission.h"
+#if __has_include("LTPrivacyPermissionHeader.h")
+#import "LTPrivacyPermissionHeader.h"
 #endif
 
 /*
@@ -18,7 +18,7 @@
  
  This app attempts to access privacy-sensitive data without a usage description. The app's Info.plist must contain an NSPhotoLibraryUsageDescription key with a string value explaining to the user how the app uses this data.
  
- 所以此库采用宏来条件编译,由于支持 /cocoapods/,所以可能不能修改.h文件,估建议在pch文件里定义下面的宏定义,需要哪一个权限就选用哪一个宏,或者自建一个 /LTPrivacyPermission.h/ 在这.h文件中定义所需宏
+ 所以此库采用宏来条件编译,由于支持 /cocoapods/,所以可能不能修改.h文件,估建议在pch文件里定义下面的宏定义,需要哪一个权限就选用哪一个宏,或者自建一个 /LTPrivacyPermissionHeader.h/ 在这.h文件中定义所需宏
  
  #define LT_Permission_Photo    //0, 相册
  #define LT_Permission_Camera   //1, 相机

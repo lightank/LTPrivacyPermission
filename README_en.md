@@ -1,6 +1,6 @@
 # LTPrivacyPermission 
 
-LTPrivacyPermission 是一个 获取/检测 系统隐私权限的库
+LTPrivacyPermission is a library for accessing/checking various system privacy permissions
 
 ![License](https://img.shields.io/badge/License-MIT-orange.svg)&nbsp;
 ![Platform](https://img.shields.io/badge/Platform-iOS-yellowgreen.svg)&nbsp;
@@ -8,27 +8,27 @@ LTPrivacyPermission 是一个 获取/检测 系统隐私权限的库
 ![Cocoapods](https://img.shields.io/badge/cocoapods-support-red.svg)&nbsp;
 ![Language](https://img.shields.io/badge/language-Objective--C-B9D3EE.svg)&nbsp;
 
-## 支持的隐私权限
-- Photo    // 相册
+## Privacy Permission Supported
+- Photo 
     - Privacy - Photo Library Usage Description
-- Camera    // 相机
+- Camera    
     - Privacy - Camera Usage Description
-- Media Library    // 媒体资源库
+- Media Library    
     - Privacy - Media Library Usage Description
-- Microphone    // 麦克风
+- Microphone    
     - Privacy - Microphone Usage Description
 - Location
-    - Privacy - Location Always and When In Use Usage Description    // 使用期间/始终访问地理位置
-    - Privacy - Location Always Usage Description    // 始终访问地理位置
-    - Privacy - Location When In Use Usage Description    //  使用期间访问地理位置
-- PushNotification    // 推送
-- Speech    // 语音识别
+    - Privacy - Location Always and When In Use Usage Description   
+    - Privacy - Location Always Usage Description   
+    - Privacy - Location When In Use Usage Description    
+- PushNotification    
+- Speech    
     - Privacy - Speech Recognition Usage Description
-- Calendar    // 日历
+- Calendar    
     - Privacy - Calendars Usage Description
-- Contact    // 通讯录
+- Contact    
     - Privacy - Contacts Usage Description
-- Reminder    // 提醒事项
+- Reminder    
     - Privacy - Reminders Usage Description 
 - Network (for China)
 
@@ -47,36 +47,34 @@ LTPrivacyPermission 是一个 获取/检测 系统隐私权限的库
 
 ## Usage
 
-- [运行demo代码查看更多示例](./LTPrivacyPermissionDemo)
+- [Start the project to see more example](./LTPrivacyPermissionDemo)
 
-由于某个版本后,写了申请权限的代码,但是没有在 /Info.plist/ 中配置相应的key,会导致提交审核的二进制被拒,被拒示例信息如下:
+Since the code for the application permission was written, but the corresponding key is not configured in /Info.plist/, the binary submitted for review is rejected after a certain version. The rejected sample information is as follows:
 
 ```
  This app attempts to access privacy-sensitive data without a usage description. The app's Info.plist must contain an NSPhotoLibraryUsageDescription key with a string value explaining to the user how the app uses this data.
 ```
 
-所以此库采用宏来条件编译,由于支持 `cocoapods`,所以可能不能修改 `.h`文件,估建议在pch文件里定义下面的宏定义,需要哪一个权限就选用哪一个宏,或者自建一个 `LTPrivacyPermissionHeader.h` 在这.h文件中定义所需宏
+Therefore, this library uses macros to compile. Since it supports `cocoapods`, it may not be possible to modify the `.h` file. It is recommended to define the following macro definition in the pch file. Which macro is required for which permission, or self-built A `LTPrivacyPermissionHeader.h` defines the required macro in this .h file
 
 ```
-#define LT_Permission_Photo    //0, 相册
-#define LT_Permission_Camera   //1, 相机
-#define LT_Permission_Microphone //2, 麦克风
-#define LT_Permission_Location_WhenInUse   //3, 使用期间访问地理位置
-#define LT_Permission_Location_Always  //4, 始终访问地理位置
-#define LT_Permission_Location_AlwaysAndWhenInUse  //5, 使用期间/始终访问地理位置
-#define LT_Permission_Contact   //6, 通讯录
-#define LT_Permission_PushNotification //7, 推送
-#define LT_Permission_MediaLibrary //8, 媒体资源库
-#define LT_Permission_Speech   //9, 语音识别
-#define LT_Permission_Calendar //10, 日历
-#define LT_Permission_Reminder  //11, 提醒事项
-#define LT_Permission_Network //12, 网络
+#define LT_Permission_Photo    //0, 
+#define LT_Permission_Camera   //1, 
+#define LT_Permission_Microphone //2, 
+#define LT_Permission_Location_WhenInUse   //3, 
+#define LT_Permission_Location_Always  //4, 
+#define LT_Permission_Location_AlwaysAndWhenInUse  //5, 
+#define LT_Permission_Contact   //6, 
+#define LT_Permission_PushNotification //7, 
+#define LT_Permission_MediaLibrary //8, 
+#define LT_Permission_Speech   //9, 
+#define LT_Permission_Calendar //10, 
+#define LT_Permission_Reminder  //11, 
+#define LT_Permission_Network //12, 
 ```
 
 
-部分示例如下:
-
-获取权限：
+example:
 
 ```objc
 //access：
@@ -91,11 +89,8 @@ LTPrivacyPermission 是一个 获取/检测 系统隐私权限的库
         // do something you want to do
     }
 }];
-```
 
-检测是否有无权限：
 
-```objc
 //check：
 [LTPrivacyPermission.sharedPermission checkPrivacyPermissionWithType:indexPath.row completion:^(BOOL authorized, LTPrivacyPermissionType type, LTPrivacyPermissionAuthorizationStatus status) {
     if (!authorized)
@@ -106,7 +101,7 @@ LTPrivacyPermission 是一个 获取/检测 系统隐私权限的库
 
 ```
 
-## 引用链接
+## Reference link
 
 * [PrivacyPermission](https://github.com/skooal/PrivacyPermission)
 

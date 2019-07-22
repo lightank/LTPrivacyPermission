@@ -16,8 +16,8 @@ Pod::Spec.new do |s|
   #
 
   s.name         = "LTPrivacyPermission"
-  s.version      = "0.0.6"
-  s.summary      = "LTPrivacyPermission is a library for accessing/check various system privacy permissions"
+  s.version      = "0.0.7"
+  s.summary      = "LTPrivacyPermission is a library for accessing/check various system privacy permissions(en) LTPrivacyPermission 是一个 获取/检测 系统隐私权限的库(zh-cn)"
 
   # This description is used to generate tags and improve search results.
   #   * Think: What does it do? Why did you write it? What is the focus?

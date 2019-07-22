@@ -105,7 +105,7 @@
         }
     }];
     
-    // 检测权限
+//     检测权限
 //    [LTPrivacyPermission.sharedPermission checkPrivacyPermissionWithType:indexPath.row completion:^(BOOL authorized, LTPrivacyPermissionType type, LTPrivacyPermissionAuthorizationStatus status) {
 //        if (!authorized)
 //        {
